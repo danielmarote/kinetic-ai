@@ -21,20 +21,21 @@ model User {
 
   subscription  Subscription?
   usageRecords  UsageRecord[]
+  bots          Bot[]
 }
 
 model Subscription {
-  id                   String    @id @default(cuid())
-  userId               String    @unique
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeCustomerId     String    @unique
-  stripeSubscriptionId String?   @unique
-  stripePriceId        String?
+  id                     String    @id @default(cuid())
+  userId                 String    @unique
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId       String    @unique
+  stripeSubscriptionId   String?   @unique
+  stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  plan                 Plan      @default(FREE)
-  status               SubStatus @default(ACTIVE)
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  plan                   Plan      @default(FREE)
+  status                 SubStatus @default(ACTIVE)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 }
 
 model UsageRecord {
@@ -48,10 +49,98 @@ model UsageRecord {
   @@index([userId, createdAt])
 }
 
+// ─── Bot Builder Models ────────────────────────────────────────────────────
+
+model Bot {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  slug            String   @unique
+  persona         String?  @db.Text
+  tone            String   @default("friendly")
+  welcomeMessage  String   @default("Hi! How can I help you today?")
+  primaryColor    String   @default("#6366f1")
+  isActive        Boolean  @default(true)
+  // Shopify integration
+  shopifyDomain   String?  // e.g. my-store.myshopify.com
+  shopifyToken    String?  // access token (store encrypted in prod)
+  shopifyScope    String?
+  // Escalation
+  escalationEmail String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  documents     BotDocument[]
+  conversations Conversation[]
+
+  @@index([userId])
+}
+
+model BotDocument {
+  id        String    @id @default(cuid())
+  botId     String
+  bot       Bot       @relation(fields: [botId], references: [id], onDelete: Cascade)
+  type      DocType
+  name      String
+  sourceUrl String?
+  status    DocStatus @default(PROCESSING)
+  chunkCount Int      @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  chunks DocChunk[]
+
+  @@index([botId])
+}
+
+model DocChunk {
+  id         String      @id @default(cuid())
+  documentId String
+  document   BotDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  botId      String
+  content    String      @db.Text
+  chunkIndex Int
+  createdAt  DateTime    @default(now())
+
+  @@index([botId])
+  @@index([documentId])
+}
+
+model Conversation {
+  id        String     @id @default(cuid())
+  botId     String
+  bot       Bot        @relation(fields: [botId], references: [id], onDelete: Cascade)
+  sessionId String     @unique
+  status    ConvStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  messages Message[]
+
+  @@index([botId])
+  @@index([botId, createdAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           MsgRole
+  content        String       @db.Text
+  sources        String?      @db.Text // JSON array of chunk IDs used for answer
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+}
+
+// ─── Enums ─────────────────────────────────────────────────────────────────
+
 enum Plan {
-  FREE
-  STARTER
-  PRO
+  FREE    // 1 bot, 50 conversations/mo
+  STARTER // 1 bot, 500 conversations/mo, Shopify integration
+  GROWTH  // 3 bots, unlimited conversations, WooCommerce + analytics
+  PRO     // 10 bots, unlimited, white-label, API access
 }
 
 enum SubStatus {
@@ -59,4 +148,28 @@ enum SubStatus {
   CANCELLED
   PAST_DUE
   TRIALING
+}
+
+enum DocType {
+  PDF
+  URL
+  SHOPIFY_PRODUCTS
+  TEXT
+}
+
+enum DocStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum ConvStatus {
+  ACTIVE
+  RESOLVED
+  ESCALATED
+}
+
+enum MsgRole {
+  USER
+  ASSISTANT
 }

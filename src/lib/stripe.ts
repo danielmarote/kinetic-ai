@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-04-30.basil",
+  apiVersion: "2025-02-24.acacia",
   typescript: true,
 });
 
@@ -11,23 +11,47 @@ export const PLANS = {
     price: 0,
     priceId: null,
     limits: {
-      requestsPerMonth: 10,
+      bots: 1,
+      conversationsPerMonth: 50,
+      shopifyIntegration: false,
+      analytics: false,
+      whiteLabelApi: false,
     },
   },
   STARTER: {
     name: "Starter",
-    price: 29,
+    price: 9,
     priceId: process.env.STRIPE_PRICE_STARTER,
     limits: {
-      requestsPerMonth: 500,
+      bots: 1,
+      conversationsPerMonth: 500,
+      shopifyIntegration: true,
+      analytics: false,
+      whiteLabelApi: false,
+    },
+  },
+  GROWTH: {
+    name: "Growth",
+    price: 29,
+    priceId: process.env.STRIPE_PRICE_GROWTH,
+    limits: {
+      bots: 3,
+      conversationsPerMonth: Infinity,
+      shopifyIntegration: true,
+      analytics: true,
+      whiteLabelApi: false,
     },
   },
   PRO: {
     name: "Pro",
-    price: 99,
+    price: 79,
     priceId: process.env.STRIPE_PRICE_PRO,
     limits: {
-      requestsPerMonth: 5000,
+      bots: 10,
+      conversationsPerMonth: Infinity,
+      shopifyIntegration: true,
+      analytics: true,
+      whiteLabelApi: true,
     },
   },
 } as const;
