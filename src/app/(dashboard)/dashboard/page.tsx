@@ -6,8 +6,19 @@ import { getUserPlan } from "@/lib/bot-limits";
 import { PLANS } from "@/lib/stripe";
 
 export default async function DashboardPage() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) redirect("/sign-in");
+  // auth() may throw on first load after OAuth redirect in Clerk dev mode —
+  // catch and redirect to sign-in to avoid the generic "Application error" page.
+  let clerkId: string;
+  try {
+    const authResult = await auth();
+    if (!authResult.userId) redirect("/sign-in");
+    clerkId = authResult.userId;
+  } catch (err: unknown) {
+    // Re-throw Next.js internal redirect/not-found signals
+    const code = (err as { digest?: string })?.digest ?? "";
+    if (code.startsWith("NEXT_REDIRECT") || code.startsWith("NEXT_NOT_FOUND")) throw err;
+    redirect("/sign-in");
+  }
 
   const user = await currentUser();
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
@@ -24,23 +35,21 @@ export default async function DashboardPage() {
     },
   });
 
-  const plan = dbUser ? await getUserPlan(dbUser.id) : "FREE";
+  const plan = await getUserPlan(dbUser.id);
   const planConfig = PLANS[plan];
 
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const totalConvsThisMonth = dbUser
-    ? await db.conversation.count({
-        where: {
-          bot: { userId: dbUser.id },
-          createdAt: { gte: startOfMonth },
-        },
-      })
-    : 0;
+  const totalConvsThisMonth = await db.conversation.count({
+    where: {
+      bot: { userId: dbUser.id },
+      createdAt: { gte: startOfMonth },
+    },
+  });
 
-  const bots = dbUser?.bots ?? [];
+  const bots = dbUser.bots;
 
   return (
     <div className="min-h-screen bg-gray-50">
