@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
@@ -15,8 +15,10 @@ export default async function BillingPage({
   if (!clerkId) redirect("/sign-in");
 
   const sp = await searchParams;
-  const user = await db.user.findUnique({ where: { clerkId } });
-  const plan = user ? await getUserPlan(user.id) : "FREE";
+  const clerkUser = await currentUser();
+  const email = clerkUser?.primaryEmailAddress?.emailAddress ?? "";
+  const user = await db.user.upsert({ where: { clerkId }, update: {}, create: { clerkId, email } });
+  const plan = await getUserPlan(user.id);
   const planConfig = PLANS[plan];
 
   return (

@@ -10,8 +10,12 @@ export default async function DashboardPage() {
   if (!clerkId) redirect("/sign-in");
 
   const user = await currentUser();
-  const dbUser = await db.user.findUnique({
+  const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  // Upsert so first-time sign-ins via OAuth automatically create the DB record
+  const dbUser = await db.user.upsert({
     where: { clerkId },
+    update: {},
+    create: { clerkId, email },
     include: {
       bots: {
         orderBy: { createdAt: "desc" },
