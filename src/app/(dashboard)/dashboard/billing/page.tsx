@@ -11,13 +11,31 @@ export default async function BillingPage({
 }: {
   searchParams: Promise<{ success?: string; cancelled?: string }>;
 }) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) redirect("/sign-in");
+  let clerkId: string;
+  try {
+    const authResult = await auth();
+    if (!authResult.userId) redirect("/sign-in");
+    clerkId = authResult.userId;
+  } catch (err: unknown) {
+    const code = (err as { digest?: string })?.digest ?? "";
+    if (code.startsWith("NEXT_REDIRECT") || code.startsWith("NEXT_NOT_FOUND")) throw err;
+    redirect("/sign-in");
+  }
 
   const sp = await searchParams;
-  const clerkUser = await currentUser();
+  let clerkUser: Awaited<ReturnType<typeof currentUser>> = null;
+  try {
+    clerkUser = await currentUser();
+  } catch {
+    // Non-fatal
+  }
   const email = clerkUser?.primaryEmailAddress?.emailAddress ?? "";
-  const user = await db.user.upsert({ where: { clerkId }, update: {}, create: { clerkId, email } });
+  let user: Awaited<ReturnType<typeof db.user.upsert>>;
+  try {
+    user = await db.user.upsert({ where: { clerkId }, update: {}, create: { clerkId, email } });
+  } catch {
+    redirect("/sign-in");
+  }
   const plan = await getUserPlan(user.id);
   const planConfig = PLANS[plan];
 

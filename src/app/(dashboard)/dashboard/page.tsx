@@ -20,20 +20,31 @@ export default async function DashboardPage() {
     redirect("/sign-in");
   }
 
-  const user = await currentUser();
+  // currentUser() can also throw in Clerk dev mode on production URLs
+  let user: Awaited<ReturnType<typeof currentUser>> = null;
+  try {
+    user = await currentUser();
+  } catch {
+    // Non-fatal: proceed without user profile data
+  }
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
   // Upsert so first-time sign-ins via OAuth automatically create the DB record
-  const dbUser = await db.user.upsert({
-    where: { clerkId },
-    update: {},
-    create: { clerkId, email },
-    include: {
-      bots: {
-        orderBy: { createdAt: "desc" },
-        include: { _count: { select: { conversations: true } } },
+  let dbUser: Awaited<ReturnType<typeof db.user.upsert>>;
+  try {
+    dbUser = await db.user.upsert({
+      where: { clerkId },
+      update: {},
+      create: { clerkId, email },
+      include: {
+        bots: {
+          orderBy: { createdAt: "desc" },
+          include: { _count: { select: { conversations: true } } },
+        },
       },
-    },
-  });
+    });
+  } catch {
+    redirect("/sign-in");
+  }
 
   const plan = await getUserPlan(dbUser.id);
   const planConfig = PLANS[plan];
