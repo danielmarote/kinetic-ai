@@ -64,7 +64,7 @@ export async function POST(
       docName = nameField ?? file.name;
       const buffer = Buffer.from(await file.arrayBuffer());
       // pdf-parse v2 exports the function as the module itself in ESM
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // @ts-expect-error pdf-parse v2 default export varies by bundler
       const pdfParseModule = await import("pdf-parse") as any;
       const pdfParseFn = pdfParseModule.default ?? pdfParseModule;
       const parsed = await pdfParseFn(buffer);

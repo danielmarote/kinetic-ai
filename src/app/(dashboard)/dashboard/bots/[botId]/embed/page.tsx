@@ -56,7 +56,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ botId: s
         <div className="bg-white rounded-xl border p-6">
           <h2 className="font-semibold text-gray-900 mb-2">Shopify Theme Installation</h2>
           <p className="text-sm text-gray-500 mb-4">
-            Add this to your Shopify theme's <code className="bg-gray-100 px-1 rounded">theme.liquid</code> file, before <code className="bg-gray-100 px-1 rounded">&lt;/body&gt;</code>.
+            Add this to your Shopify theme&apos;s <code className="bg-gray-100 px-1 rounded">theme.liquid</code> file, before <code className="bg-gray-100 px-1 rounded">&lt;/body&gt;</code>.
           </p>
           <EmbedCode code={shopifyScript} language="liquid" />
 

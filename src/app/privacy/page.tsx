@@ -46,7 +46,7 @@ export default function PrivacyPage() {
       <section style={{ marginBottom: 32 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>5. Data Deletion</h2>
         <p>
-          When you uninstall BotBuilder from your Shopify store, we will delete all data associated with your store within 30 days, in compliance with Shopify's GDPR requirements. To request immediate deletion, contact us at privacy@yourdomain.com.
+          When you uninstall BotBuilder from your Shopify store, we will delete all data associated with your store within 30 days, in compliance with Shopify&apos;s GDPR requirements. To request immediate deletion, contact us at privacy@yourdomain.com.
         </p>
       </section>
 
