@@ -18,7 +18,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ botId: s
   const embedScript = `<script src="${appUrl}/widget.js" data-bot-id="${botId}" async></script>`;
   const shopifyScript = `{{ '${appUrl}/widget.js' | script_tag }}
 <script>
-  window.BotBuilderBotId = "${botId}";
+  window.HelplyBotId = "${botId}";
 </script>`;
 
   return (

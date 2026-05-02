@@ -6,7 +6,7 @@ export default function PrivacyPage() {
 
       <section style={{ marginBottom: 32 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>1. Information We Collect</h2>
-        <p>When you install BotBuilder and connect it to your Shopify store, we collect:</p>
+        <p>When you install Helply and connect it to your Shopify store, we collect:</p>
         <ul style={{ paddingLeft: 20, marginTop: 8 }}>
           <li>Your Shopify store domain and OAuth access token (to query orders and products)</li>
           <li>Documents you upload (PDFs, URLs, text) to power your knowledge base</li>
@@ -46,7 +46,7 @@ export default function PrivacyPage() {
       <section style={{ marginBottom: 32 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>5. Data Deletion</h2>
         <p>
-          When you uninstall BotBuilder from your Shopify store, we will delete all data associated with your store within 30 days, in compliance with Shopify&apos;s GDPR requirements. To request immediate deletion, contact us at privacy@yourdomain.com.
+          When you uninstall Helply from your Shopify store, we will delete all data associated with your store within 30 days, in compliance with Shopify&apos;s GDPR requirements. To request immediate deletion, contact us at privacy@helply.ai.
         </p>
       </section>
 
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
 
       <section style={{ marginBottom: 32 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>7. Contact</h2>
-        <p>For privacy questions or data requests, contact: <a href="mailto:privacy@yourdomain.com">privacy@yourdomain.com</a></p>
+        <p>For privacy questions or data requests, contact: <a href="mailto:privacy@helply.ai">privacy@helply.ai</a></p>
       </section>
     </div>
   );

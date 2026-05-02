@@ -1,5 +1,5 @@
 /**
- * BotBuilder Embeddable Chat Widget
+ * Helply Embeddable Chat Widget
  * Usage: <script src="https://yourapp.com/widget.js" data-bot-id="YOUR_BOT_ID" async></script>
  */
 (function () {
@@ -8,16 +8,16 @@
   // Get bot ID from script tag or global var
   var botId = document.currentScript
     ? document.currentScript.getAttribute('data-bot-id')
-    : window.BotBuilderBotId;
+    : window.HelplyBotId;
 
   if (!botId) {
-    console.warn('[BotBuilder] No data-bot-id specified on script tag.');
+    console.warn('[Helply] No data-bot-id specified on script tag.');
     return;
   }
 
   var appUrl = document.currentScript
     ? document.currentScript.src.replace('/widget.js', '')
-    : (window.BotBuilderAppUrl || window.location.origin);
+    : (window.HelplyAppUrl || window.location.origin);
 
   var sessionId = 'bb_' + Math.random().toString(36).slice(2) + '_' + Date.now();
   var isOpen = false;

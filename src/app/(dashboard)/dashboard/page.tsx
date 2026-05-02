@@ -57,7 +57,7 @@ export default async function DashboardPage() {
       <div className="bg-white border-b">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">BotBuilder</h1>
+            <h1 className="text-xl font-bold text-gray-900">Helply</h1>
             <p className="text-sm text-gray-500">AI Customer Support</p>
           </div>
           <nav className="flex items-center gap-6 text-sm">

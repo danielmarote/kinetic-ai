@@ -63,11 +63,11 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams) {
   await resend.emails.send({
     from: FROM,
     to,
-    subject: "Welcome to BotBuilder — your AI customer support tool",
+    subject: "Welcome to Helply — your AI customer support tool",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #6366f1;">Welcome, ${name}!</h2>
-        <p>You're now set up with BotBuilder. Here's how to get started in under 10 minutes:</p>
+        <p>You're now set up with Helply. Here's how to get started in under 5 minutes:</p>
         <ol>
           <li>Create your first bot</li>
           <li>Upload your FAQs or point to your store URL</li>

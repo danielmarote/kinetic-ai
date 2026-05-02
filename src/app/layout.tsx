@@ -3,8 +3,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BotBuilder — AI Customer Support for Shopify",
-  description: "Build an AI chatbot for your Shopify store in under 10 minutes. Trained on your products, FAQs, and policies.",
+  title: "Helply — AI Support Chatbot for Shopify",
+  description: "The no-code AI chatbot that automatically deflects 45% of support tickets. Built for Shopify & WooCommerce merchants.",
 };
 
 export default function RootLayout({

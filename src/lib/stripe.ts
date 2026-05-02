@@ -20,7 +20,7 @@ export const PLANS = {
   },
   STARTER: {
     name: "Starter",
-    price: 9,
+    price: 29,
     priceId: process.env.STRIPE_PRICE_STARTER,
     limits: {
       bots: 1,
@@ -32,7 +32,7 @@ export const PLANS = {
   },
   GROWTH: {
     name: "Growth",
-    price: 29,
+    price: 49,
     priceId: process.env.STRIPE_PRICE_GROWTH,
     limits: {
       bots: 3,
@@ -44,7 +44,7 @@ export const PLANS = {
   },
   PRO: {
     name: "Pro",
-    price: 79,
+    price: 99,
     priceId: process.env.STRIPE_PRICE_PRO,
     limits: {
       bots: 10,
