@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key || key.startsWith("re_...") || key === "re_placeholder") {
+    return null;
+  }
+  return new Resend(key);
+}
+
 const FROM = process.env.RESEND_FROM_EMAIL ?? "noreply@example.com";
 
 export interface EscalationEmailParams {
@@ -12,6 +19,8 @@ export interface EscalationEmailParams {
 }
 
 export async function sendEscalationEmail(params: EscalationEmailParams) {
+  const resend = getResend();
+  if (!resend) return; // email not configured yet
   const { to, botName, conversationId, visitorQuestion, conversationUrl } = params;
 
   await resend.emails.send({
@@ -48,6 +57,8 @@ export interface WelcomeEmailParams {
 }
 
 export async function sendWelcomeEmail(params: WelcomeEmailParams) {
+  const resend = getResend();
+  if (!resend) return; // email not configured yet
   const { to, name } = params;
   await resend.emails.send({
     from: FROM,

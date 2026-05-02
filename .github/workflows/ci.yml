@@ -66,6 +66,9 @@ jobs:
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_placeholder"
       ANTHROPIC_API_KEY: "sk-ant-placeholder"
       NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      RESEND_API_KEY: "re_placeholder"
+      SHOPIFY_API_KEY: "placeholder"
+      SHOPIFY_API_SECRET: "placeholder"
     steps:
       - uses: actions/checkout@v4
 
