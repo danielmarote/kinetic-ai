@@ -20,16 +20,18 @@ export default async function DashboardPage() {
     redirect("/sign-in");
   }
 
-  // currentUser() can throw in Clerk dev mode on production URLs — treat as non-fatal
+  // currentUser() can throw — treat as non-fatal, we only need clerkId for DB ops
   const user = await currentUser().catch(() => null);
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
-  // Upsert so first-time sign-ins via OAuth automatically create the DB record.
-  // On error (e.g. DB unreachable) redirect to sign-in instead of crashing.
+
+  // Upsert the DB user. If this fails, it means the user IS authenticated but
+  // our DB is temporarily unavailable — do NOT redirect to sign-in (that creates
+  // an infinite loop). Render with empty state instead.
   const dbUser = await db.user
     .upsert({
       where: { clerkId },
-      update: {},
-      create: { clerkId, email },
+      update: { email: email || undefined },
+      create: { clerkId, email: email || `${clerkId}@helply.noreply` },
       include: {
         bots: {
           orderBy: { createdAt: "desc" },
@@ -37,23 +39,36 @@ export default async function DashboardPage() {
         },
       },
     })
-    .catch(() => {
-      redirect("/sign-in");
-    });
+    .catch(() => null);
 
-  const plan = await getUserPlan(dbUser.id);
+  // If DB is unreachable, show a temporary error rather than looping
+  if (!dbUser) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">Temporarily unavailable</h1>
+          <p className="text-gray-500 mb-4">Could not connect to the database. Please try again in a moment.</p>
+          <a href="/dashboard" className="text-indigo-600 underline text-sm">Retry</a>
+        </div>
+      </div>
+    );
+  }
+
+  const plan = await getUserPlan(dbUser.id).catch(() => "FREE" as const);
   const planConfig = PLANS[plan];
 
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const totalConvsThisMonth = await db.conversation.count({
-    where: {
-      bot: { userId: dbUser.id },
-      createdAt: { gte: startOfMonth },
-    },
-  });
+  const totalConvsThisMonth = await db.conversation
+    .count({
+      where: {
+        bot: { userId: dbUser.id },
+        createdAt: { gte: startOfMonth },
+      },
+    })
+    .catch(() => 0);
 
   const bots = dbUser.bots;
 

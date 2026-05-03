@@ -26,11 +26,26 @@ export default async function BillingPage({
   const clerkUser = await currentUser().catch(() => null);
   const email = clerkUser?.primaryEmailAddress?.emailAddress ?? "";
   const user = await db.user
-    .upsert({ where: { clerkId }, update: {}, create: { clerkId, email } })
-    .catch(() => {
-      redirect("/sign-in");
-    });
-  const plan = await getUserPlan(user.id);
+    .upsert({
+      where: { clerkId },
+      update: { email: email || undefined },
+      create: { clerkId, email: email || `${clerkId}@helply.noreply` },
+    })
+    .catch(() => null);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">Temporarily unavailable</h1>
+          <p className="text-gray-500 mb-4">Could not connect to the database. Please try again.</p>
+          <a href="/dashboard/billing" className="text-indigo-600 underline text-sm">Retry</a>
+        </div>
+      </div>
+    );
+  }
+
+  const plan = await getUserPlan(user.id).catch(() => "FREE" as const);
   const planConfig = PLANS[plan];
 
   return (
