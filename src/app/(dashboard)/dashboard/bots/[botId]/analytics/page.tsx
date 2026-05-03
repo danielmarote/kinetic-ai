@@ -29,6 +29,33 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ botI
 
   const deflectionRate = total > 0 ? Math.round(((total - escalated) / total) * 100) : 0;
 
+  // Top unanswered questions: USER messages in ESCALATED conversations (last 30 days)
+  // These represent questions the bot couldn't answer and had to escalate
+  const unansweredMessages = await db.message.findMany({
+    where: {
+      role: "USER",
+      conversation: {
+        botId,
+        status: "ESCALATED",
+        createdAt: { gte: since30 },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+    select: { id: true, content: true, createdAt: true },
+  });
+
+  // Deduplicate similar questions (keep first occurrence, truncate long ones)
+  const seen = new Set<string>();
+  const topUnanswered = unansweredMessages
+    .filter((m) => {
+      const key = m.content.toLowerCase().trim().slice(0, 60);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 10);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b">
@@ -104,6 +131,27 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ botI
               />
               <div className="h-full bg-gray-300 flex-1" />
             </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl border p-6 mt-6">
+          <h3 className="font-semibold text-gray-900 mb-1">Top Unanswered Questions</h3>
+          <p className="text-xs text-gray-500 mb-4">
+            Questions from escalated conversations — add these topics to your knowledge base to improve bot coverage.
+          </p>
+          {topUnanswered.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">No unanswered questions in the last 30 days.</p>
+          ) : (
+            <ol className="space-y-2">
+              {topUnanswered.map((msg, i) => (
+                <li key={msg.id} className="flex gap-3 text-sm">
+                  <span className="text-gray-400 font-mono w-5 shrink-0">{i + 1}.</span>
+                  <span className="text-gray-700 line-clamp-2">
+                    {msg.content.length > 200 ? msg.content.slice(0, 200) + "…" : msg.content}
+                  </span>
+                </li>
+              ))}
+            </ol>
           )}
         </div>
       </div>
