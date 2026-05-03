@@ -23,19 +23,13 @@ export default async function BillingPage({
   }
 
   const sp = await searchParams;
-  let clerkUser: Awaited<ReturnType<typeof currentUser>> = null;
-  try {
-    clerkUser = await currentUser();
-  } catch {
-    // Non-fatal
-  }
+  const clerkUser = await currentUser().catch(() => null);
   const email = clerkUser?.primaryEmailAddress?.emailAddress ?? "";
-  let user: Awaited<ReturnType<typeof db.user.upsert>>;
-  try {
-    user = await db.user.upsert({ where: { clerkId }, update: {}, create: { clerkId, email } });
-  } catch {
-    redirect("/sign-in");
-  }
+  const user = await db.user
+    .upsert({ where: { clerkId }, update: {}, create: { clerkId, email } })
+    .catch(() => {
+      redirect("/sign-in");
+    });
   const plan = await getUserPlan(user.id);
   const planConfig = PLANS[plan];
 

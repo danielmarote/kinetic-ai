@@ -20,18 +20,13 @@ export default async function DashboardPage() {
     redirect("/sign-in");
   }
 
-  // currentUser() can also throw in Clerk dev mode on production URLs
-  let user: Awaited<ReturnType<typeof currentUser>> = null;
-  try {
-    user = await currentUser();
-  } catch {
-    // Non-fatal: proceed without user profile data
-  }
+  // currentUser() can throw in Clerk dev mode on production URLs — treat as non-fatal
+  const user = await currentUser().catch(() => null);
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
-  // Upsert so first-time sign-ins via OAuth automatically create the DB record
-  let dbUser: Awaited<ReturnType<typeof db.user.upsert>>;
-  try {
-    dbUser = await db.user.upsert({
+  // Upsert so first-time sign-ins via OAuth automatically create the DB record.
+  // On error (e.g. DB unreachable) redirect to sign-in instead of crashing.
+  const dbUser = await db.user
+    .upsert({
       where: { clerkId },
       update: {},
       create: { clerkId, email },
@@ -41,10 +36,10 @@ export default async function DashboardPage() {
           include: { _count: { select: { conversations: true } } },
         },
       },
+    })
+    .catch(() => {
+      redirect("/sign-in");
     });
-  } catch {
-    redirect("/sign-in");
-  }
 
   const plan = await getUserPlan(dbUser.id);
   const planConfig = PLANS[plan];
