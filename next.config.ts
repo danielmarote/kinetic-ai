@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
         "localhost:3000",
         "kinetic-ai-indol.vercel.app",
         "*.vercel.app",
+        "wearehelply.com",
+        "www.wearehelply.com",
       ],
     },
   },
