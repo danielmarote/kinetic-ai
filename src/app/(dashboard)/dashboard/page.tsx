@@ -24,22 +24,19 @@ export default async function DashboardPage() {
   const user = await currentUser().catch(() => null);
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
   // Upsert so first-time sign-ins via OAuth automatically create the DB record.
-  // On error (e.g. DB unreachable) redirect to sign-in instead of crashing.
-  const dbUser = await db.user
-    .upsert({
-      where: { clerkId },
-      update: {},
-      create: { clerkId, email },
-      include: {
-        bots: {
-          orderBy: { createdAt: "desc" },
-          include: { _count: { select: { conversations: true } } },
-        },
+  // On DB error, throw so the error.tsx boundary handles it — DO NOT redirect to
+  // sign-in here, that would cause a redirect loop for authenticated users.
+  const dbUser = await db.user.upsert({
+    where: { clerkId },
+    update: {},
+    create: { clerkId, email },
+    include: {
+      bots: {
+        orderBy: { createdAt: "desc" },
+        include: { _count: { select: { conversations: true } } },
       },
-    })
-    .catch(() => {
-      redirect("/sign-in");
-    });
+    },
+  });
 
   const plan = await getUserPlan(dbUser.id);
   const planConfig = PLANS[plan];
