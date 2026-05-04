@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { canStartConversation } from "@/lib/bot-limits";
+import { trackEvent } from "@/lib/analytics";
 import {
   retrieveRelevantChunks,
   generateChatResponse,
@@ -39,6 +40,7 @@ export async function POST(
 
   // Find or create conversation
   let conversation = await db.conversation.findUnique({ where: { sessionId } });
+  const isFirstMessage = !conversation;
   if (!conversation) {
     // Check conversation limit before creating
     const { allowed, reason } = await canStartConversation(botId);
@@ -48,6 +50,7 @@ export async function POST(
     conversation = await db.conversation.create({
       data: { botId, sessionId },
     });
+    trackEvent("first_message_sent", { botId, sessionId });
   }
 
   // Load recent conversation history (last 10 messages)

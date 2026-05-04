@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { chunkText } from "@/lib/rag";
+import { trackEvent } from "@/lib/analytics";
 
 // Force Node.js runtime (pdf-parse requires it)
 export const runtime = "nodejs";
@@ -126,6 +127,8 @@ export async function POST(
       where: { id: doc.id },
       data: { status: "READY", chunkCount: chunks.length },
     });
+
+    trackEvent("knowledge_base_upload", { botId, docType, chunkCount: chunks.length });
 
     return NextResponse.json({ document: { ...doc, status: "READY", chunkCount: chunks.length } }, { status: 201 });
   } catch (err) {

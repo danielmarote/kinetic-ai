@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { canCreateBot } from "@/lib/bot-limits";
+import { trackEvent } from "@/lib/analytics";
 
 const createBotSchema = z.object({
   name: z.string().min(1).max(100),
@@ -33,11 +34,11 @@ async function ensureUniqueSlug(base: string): Promise<string> {
 }
 
 async function ensureUser(clerkId: string, email: string) {
-  return db.user.upsert({
-    where: { clerkId },
-    update: {},
-    create: { clerkId, email },
-  });
+  const existing = await db.user.findUnique({ where: { clerkId } });
+  if (existing) return existing;
+  const user = await db.user.create({ data: { clerkId, email } });
+  trackEvent("signup", { userId: user.id, email });
+  return user;
 }
 
 export async function GET() {
@@ -92,6 +93,8 @@ export async function POST(request: Request) {
       escalationEmail: escalationEmail || null,
     },
   });
+
+  trackEvent("bot_created", { botId: bot.id, userId: user.id, tone: bot.tone });
 
   return NextResponse.json({ bot }, { status: 201 });
 }

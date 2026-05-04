@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { CopyButton } from "./CopyButton";
 
 export default async function EmbedPage({ params }: { params: Promise<{ botId: string }> }) {
   const { userId: clerkId } = await auth();
@@ -49,7 +50,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ botId: s
           <p className="text-sm text-gray-500 mb-4">
             Paste this snippet before the <code className="bg-gray-100 px-1 rounded">&lt;/body&gt;</code> tag on any page.
           </p>
-          <EmbedCode code={embedScript} />
+          <EmbedCode code={embedScript} botId={botId} />
         </div>
 
         {/* Shopify embed */}
@@ -58,7 +59,7 @@ export default async function EmbedPage({ params }: { params: Promise<{ botId: s
           <p className="text-sm text-gray-500 mb-4">
             Add this to your Shopify theme&apos;s <code className="bg-gray-100 px-1 rounded">theme.liquid</code> file, before <code className="bg-gray-100 px-1 rounded">&lt;/body&gt;</code>.
           </p>
-          <EmbedCode code={shopifyScript} language="liquid" />
+          <EmbedCode code={shopifyScript} language="liquid" botId={botId} />
 
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
             <h3 className="text-sm font-semibold text-blue-900 mb-2">Shopify App Installation</h3>
@@ -105,39 +106,16 @@ export default async function EmbedPage({ params }: { params: Promise<{ botId: s
   );
 }
 
-function EmbedCode({ code, language = "html" }: { code: string; language?: string }) {
+function EmbedCode({ code, botId, language = "html" }: { code: string; botId?: string; language?: string }) {
   return (
     <div className="relative">
       <pre className="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 overflow-x-auto">
         <code>{code}</code>
       </pre>
-      <CopyButton text={code} />
+      <div className="absolute top-2 right-2">
+        <CopyButton text={code} botId={botId} />
+      </div>
     </div>
-  );
-}
-
-function CopyButton({ text }: { text: string }) {
-  // This is a client-side copy button rendered as a form action
-  return (
-    <form
-      className="absolute top-2 right-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        navigator.clipboard.writeText(text);
-        const btn = e.currentTarget.querySelector("button");
-        if (btn) {
-          btn.textContent = "Copied!";
-          setTimeout(() => { btn.textContent = "Copy"; }, 2000);
-        }
-      }}
-    >
-      <button
-        type="submit"
-        className="text-xs bg-white/10 hover:bg-white/20 text-gray-300 px-2 py-1 rounded transition-colors"
-      >
-        Copy
-      </button>
-    </form>
   );
 }
 
