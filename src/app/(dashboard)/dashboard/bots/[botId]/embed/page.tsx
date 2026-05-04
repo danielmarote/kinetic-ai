@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { CopyButton } from "./CopyButton";
 
 export default async function EmbedPage({ params }: { params: Promise<{ botId: string }> }) {
   const { userId: clerkId } = await auth();
@@ -116,30 +117,6 @@ function EmbedCode({ code, language = "html" }: { code: string; language?: strin
   );
 }
 
-function CopyButton({ text }: { text: string }) {
-  // This is a client-side copy button rendered as a form action
-  return (
-    <form
-      className="absolute top-2 right-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        navigator.clipboard.writeText(text);
-        const btn = e.currentTarget.querySelector("button");
-        if (btn) {
-          btn.textContent = "Copied!";
-          setTimeout(() => { btn.textContent = "Copy"; }, 2000);
-        }
-      }}
-    >
-      <button
-        type="submit"
-        className="text-xs bg-white/10 hover:bg-white/20 text-gray-300 px-2 py-1 rounded transition-colors"
-      >
-        Copy
-      </button>
-    </form>
-  );
-}
 
 function ShopifyInstallForm({ botId }: { botId: string }) {
   return (
