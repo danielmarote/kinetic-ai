@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroChatMockup } from "./HeroChatMockup";
 
 export default function Home() {
   return (
@@ -16,26 +17,36 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <div className="max-w-4xl mx-auto px-6 pt-16 pb-20 text-center">
-        <div className="inline-block bg-indigo-50 text-indigo-700 text-sm font-medium px-3 py-1 rounded-full mb-6">
-          Built for Shopify &amp; WooCommerce merchants
+      <div className="max-w-6xl mx-auto px-6 pt-16 pb-20">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left: copy */}
+          <div>
+            <div className="inline-block bg-indigo-50 text-indigo-700 text-sm font-medium px-3 py-1 rounded-full mb-6">
+              Built for Shopify &amp; WooCommerce merchants
+            </div>
+            <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
+              Stop Answering the Same Questions.<br />
+              <span className="text-indigo-600">Let Helply Do It.</span>
+            </h1>
+            <p className="text-xl text-gray-500 mb-10">
+              The no-code AI chatbot that automatically deflects <strong className="text-gray-700">45% of support tickets</strong> — handles order status, FAQs, and policies 24/7.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/sign-up" className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+                Start for Free →
+              </Link>
+              <Link href="/sign-in" className="border-2 border-gray-200 px-8 py-4 rounded-xl font-semibold text-lg hover:border-gray-300 transition-colors">
+                Sign In
+              </Link>
+            </div>
+            <p className="text-sm text-gray-400 mt-4">No credit card required • Set up in 5 minutes</p>
+          </div>
+
+          {/* Right: animated chat mockup */}
+          <div className="flex justify-center md:justify-end pt-4 md:pt-0">
+            <HeroChatMockup />
+          </div>
         </div>
-        <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
-          Stop Answering the Same Questions.<br />
-          <span className="text-indigo-600">Let Helply Do It.</span>
-        </h1>
-        <p className="text-xl text-gray-500 mb-10 max-w-2xl mx-auto">
-          For small Shopify and WooCommerce merchants drowning in repetitive customer emails — Helply is the no-code AI chatbot that automatically deflects <strong className="text-gray-700">45% of support tickets</strong> at a flat $29/mo.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Link href="/sign-up" className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-            Start for Free →
-          </Link>
-          <Link href="/sign-in" className="border-2 border-gray-200 px-8 py-4 rounded-xl font-semibold text-lg hover:border-gray-300 transition-colors">
-            Sign In
-          </Link>
-        </div>
-        <p className="text-sm text-gray-400 mt-4">No credit card required • Set up in 5 minutes</p>
       </div>
 
       {/* Social proof bar */}
